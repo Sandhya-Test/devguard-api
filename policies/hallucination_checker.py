@@ -1,37 +1,57 @@
-# policies/hallucination_checker.py
+from typing import Any
 
-async def validate_response(prompt: str, response: str):
+
+def _normalize(text: str) -> str:
+    return " ".join(text.strip().lower().split())
+
+
+async def assess_response(prompt: str, response: str) -> dict[str, Any]:
     """
-    Lightweight hallucination validation.
-
-    Design goals:
-    - Do NOT over-block valid responses
-    - Allow short/creative prompts
-    - Catch only clearly invalid outputs
+    Lightweight response validation that avoids over-blocking while still
+    catching clearly weak generations before we accept them.
     """
-
-    # Normalize inputs
     if not prompt or not response:
-        return False
+        return {
+            "passed": False,
+            "action": "flagged_empty_response",
+            "reason": "Prompt or response was empty during validation.",
+        }
 
-    prompt = prompt.strip().lower()
-    response = response.strip().lower()
+    normalized_prompt = _normalize(prompt)
+    normalized_response = _normalize(response)
 
-    # ❌ Empty or meaningless response
-    if len(response) == 0:
-        return False
+    if not normalized_response:
+        return {
+            "passed": False,
+            "action": "flagged_empty_response",
+            "reason": "Response was empty after normalization.",
+        }
 
-    # ✅ VERY IMPORTANT: Allow short prompts (creative/simple)
-    # Examples:
-    # "give one word"
-    # "hello"
-    # "define ai"
-    if len(prompt.split()) <= 5:
-        return True
+    prompt_word_count = len(normalized_prompt.split())
+    response_word_count = len(normalized_response.split())
+    low_information_responses = {"ok", "yes", "no", "maybe", "unknown", "n/a"}
 
-    # ✅ Basic sanity check: response should contain words
-    if len(response.split()) >= 1:
-        return True
+    if response_word_count < 3 and prompt_word_count > 5:
+        return {
+            "passed": False,
+            "action": "flagged_too_short",
+            "reason": "Response is unusually short for the prompt complexity.",
+        }
 
-    # Fallback (rare case)
-    return True
+    if normalized_response in low_information_responses and prompt_word_count > 3:
+        return {
+            "passed": False,
+            "action": "flagged_low_information",
+            "reason": "Response is too low-information to trust for this prompt.",
+        }
+
+    return {
+        "passed": True,
+        "action": "allowed",
+        "reason": "Response passed lightweight hallucination screening.",
+    }
+
+
+async def validate_response(prompt: str, response: str) -> bool:
+    result = await assess_response(prompt, response)
+    return result["passed"]

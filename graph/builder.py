@@ -33,7 +33,8 @@ def route_after_llm(state: DevGuardState):
  
  
 def route_after_validation(state: DevGuardState):
-    # Always go to audit — whether blocked or passed
+    if state.get("validation_retry_requested", False) and state.get("allowed", True):
+        return "governance"
     return "audit"
  
  
@@ -85,11 +86,12 @@ def build_graph():
         },
     )
  
-    # validation → audit (always)
+    # validation → governance retry | audit
     builder.add_conditional_edges(
         "validation",
         route_after_validation,
         {
+            "governance": "governance",
             "audit": "audit",
         },
     )

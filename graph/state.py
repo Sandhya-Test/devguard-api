@@ -1,42 +1,40 @@
-# graph/state.py
- 
-from typing import TypedDict, List, Dict, Optional, Any
- 
- 
+from typing import Dict, List, Optional, TypedDict
+
+
 class DevGuardState(TypedDict):
- 
-    # ── Request Identity ──
     request_id: str
-    prompt:     str
+    prompt: str
     project_id: str
- 
-    # ── RAG Context (optional) ──
-    context_chunks: List[str]      # populated by developer for RAG apps
- 
-    # ── Policy Gate ──
-    allowed:    bool
-    response:   Optional[str]
+    context_chunks: List[str]
+
+    allowed: bool
+    response: Optional[str]
     violations: List[str]
- 
-    # ── Policy Trace ──
     policy_decisions: List[Dict]
- 
-    # ── Token Tracking ──
-    estimated_tokens:    int
+    validation_retry_count: int
+    max_validation_retries: int
+    validation_retry_requested: bool
+    validation_retry_reason: Optional[str]
+
+    estimated_tokens: int
+    estimated_input_tokens: int
+    max_output_tokens: int
     tokens_used_request: int
-    tokens_used_total:   int
-    tokens_remaining:    int
-    token_quota:         int
- 
-    # ── Performance ──
+    tokens_used_total: int
+    tokens_remaining: int
+    token_quota: int
+    quota_period: str
+    quota_window_key: str
+    quota_window_start: str
+    quota_window_end: str
+    quota_date: str
+    approved_quota_increase: int
+
     latency_ms: float
-    cost_usd:   float
- 
-    # ── Model Info ──
-    model_used: str          # set by model tiering
- 
-    # ── Validation Results ──
-    grounding_result: Optional[Dict]   # set by source grounding check
- 
-    # ── XAI Logic Trace ──
-    logic_trace: Optional[Dict]        # set by audit node
+    cost_usd: float
+    model_used: str
+
+    grounding_result: Optional[Dict]
+    validation_summary: Optional[Dict]
+    logic_trace: Optional[Dict]
+    reasoning_score: int
