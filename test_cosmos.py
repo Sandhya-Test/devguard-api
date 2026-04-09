@@ -1,11 +1,14 @@
 import os
 from azure.cosmos import CosmosClient, exceptions
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 # Read environment variables
 COSMOS_URI = os.getenv("COSMOS_URI")
 COSMOS_KEY = os.getenv("COSMOS_KEY")
-DATABASE_NAME = "devguard"          # change if needed
-CONTAINER_NAME = "audit_logs" # change if needed
+DATABASE_NAME = os.getenv("COSMOS_DATABASE", "devguard")
+CONTAINER_NAME = os.getenv("COSMOS_CONTAINER", "audit_logs")
 
 if not COSMOS_URI:
     print("❌ COSMOS_URI not found")

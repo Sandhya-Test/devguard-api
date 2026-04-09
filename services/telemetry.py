@@ -11,7 +11,7 @@ import os
 import logging
 from dotenv import load_dotenv
  
-load_dotenv()
+load_dotenv(override=True)
  
 connection_string = os.getenv("APPINSIGHTS_CONNECTION_STRING")
  

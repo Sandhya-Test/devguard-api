@@ -7,7 +7,13 @@ from azure.cosmos import CosmosClient
 import os
 from dotenv import load_dotenv
  
-load_dotenv()
+load_dotenv(override=True)
+
+COSMOS_DATABASE_NAME = os.getenv("COSMOS_DATABASE", "devguard")
+COSMOS_AUDIT_CONTAINER = os.getenv("COSMOS_CONTAINER", "audit_logs")
+API_BASE_URL = (os.getenv("DEVGUARD_API_BASE_URL") or "http://localhost:8000").rstrip("/")
+GENERATE_URL = f"{API_BASE_URL}/generate"
+DOCS_URL = f"{API_BASE_URL}/docs"
  
 # PAGE CONFIG
  
@@ -72,9 +78,9 @@ def get_cosmos_container():
  
         client = CosmosClient(COSMOS_URI, credential=COSMOS_KEY)
  
-        database = client.get_database_client("devguard")
+        database = client.get_database_client(COSMOS_DATABASE_NAME)
  
-        container = database.get_container_client("audit_logs")
+        container = database.get_container_client(COSMOS_AUDIT_CONTAINER)
  
         return container
  
@@ -303,7 +309,7 @@ if st.button("Send Request"):
     try:
  
         response=httpx.post(
-        "http://localhost:8000/generate",
+        GENERATE_URL,
         json={
             "project_id":project_id,
             "prompt":prompt
@@ -346,9 +352,9 @@ AI Governance Layer
  
     st.markdown("### API")
  
-    st.code("POST /devguard/run")
+    st.code("POST /generate")
  
-    st.markdown("Swagger: http://localhost:8000/docs")
+    st.markdown(f"Swagger: {DOCS_URL}")
  
 # ======================================================
 # FOOTER

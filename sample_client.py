@@ -1,6 +1,12 @@
-import requests
+import os
 
-url = "https://devguard-api.azurewebsites.net/generate"
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+api_base_url = (os.getenv("DEVGUARD_API_BASE_URL") or "http://localhost:8000").rstrip("/")
+url = f"{api_base_url}/generate"
 
 data = {
     "project_id": "external_app",

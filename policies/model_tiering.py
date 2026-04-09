@@ -10,7 +10,7 @@
 import os
 from dotenv import load_dotenv
  
-load_dotenv()
+load_dotenv(override=True)
  
 # ── Model names pulled from .env ──
 # Same endpoint and key for both — only deployment name differs

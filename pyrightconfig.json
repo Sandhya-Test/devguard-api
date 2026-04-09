@@ -1,0 +1,18 @@
+{
+    "venvPath": ".",
+    "venv": "venv",
+    "extraPaths": [
+        "./venv/Lib/site-packages"
+    ],
+    "include": [
+        "api",
+        "graph",
+        "policies",
+        "services",
+        "utils",
+        "sample_client.py",
+        "test_azure.py",
+        "test_content_safety.py",
+        "test_cosmos.py"
+    ]
+}
